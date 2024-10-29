@@ -115,13 +115,11 @@ int main() {
     //
     std::filesystem::path texturePath = projectRoot/"res"/"wall.jpg";
     unsigned char *data = stbi_load(texturePath.string().c_str(), &width, &height, &nrChannels, 0);
-    if (data)
-    {
+    if (data) {
         glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
         glGenerateMipmap(GL_TEXTURE_2D);
     }
-    else
-    {
+    else {
         std::cout << "Failed to load texture" << std::endl;
     }
     stbi_image_free(data);
@@ -135,8 +133,7 @@ int main() {
 
     // render loop
     // -----------
-    while (!glfwWindowShouldClose(window))
-    {
+    while (!glfwWindowShouldClose(window)) {
         // input
         // -----
         processInput(window);
