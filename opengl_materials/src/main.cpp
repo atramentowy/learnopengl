@@ -170,8 +170,27 @@ int main() {
 
 		// activating shaders/setting uniforms
 		lightingShader.use();
-		lightingShader.setVec3("objectColor", 1.0f, 0.5f, 0.31f);
-		lightingShader.setVec3("lightColor", 1.0f, 1.0f, 1.0f);
+
+		// change light color
+        glm::vec3 lightColor;
+		lightColor.x = static_cast<float>(sin(glfwGetTime() * 2.0f));
+		lightColor.y = static_cast<float>(sin(glfwGetTime() * 0.7f));
+		lightColor.z = static_cast<float>(sin(glfwGetTime() * 1.3f));
+		glm::vec3 diffuseColor = lightColor   * glm::vec3(0.5f); 
+		glm::vec3 ambientColor = diffuseColor * glm::vec3(0.2f); 
+		lightingShader.setVec3("light.ambient", ambientColor);
+		lightingShader.setVec3("light.diffuse", diffuseColor);
+
+
+		//lightingShader.setVec3("light.ambient",  0.2f, 0.2f, 0.2f);
+		//lightingShader.setVec3("light.diffuse",  0.5f, 0.5f, 0.5f); // darken diffuse light a bit
+		lightingShader.setVec3("light.specular", 1.0f, 1.0f, 1.0f);
+
+		lightingShader.setVec3("material.ambient", 1.0f, 0.5f, 0.31f);
+		lightingShader.setVec3("material.diffuse", 1.0f, 0.5f, 0.31f);
+		lightingShader.setVec3("material.specular", 0.5f, 0.5f, 0.5f);
+		lightingShader.setFloat("material.shininess", 32.0f);
+
 		lightingShader.setVec3("lightPos", lightPos);
 		lightingShader.setVec3("viewPos", camera.Position); 
 
@@ -192,6 +211,7 @@ int main() {
 		
 		// render the light object
 		lightCubeShader.use();
+		lightCubeShader.setVec3("lightColor", lightColor);
 		lightCubeShader.setMat4("projection", projection);
 		lightCubeShader.setMat4("view", view);
 		model = glm::mat4(1.0f);
