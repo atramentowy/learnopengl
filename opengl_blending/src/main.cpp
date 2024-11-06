@@ -13,6 +13,7 @@
 
 #include <iostream>
 #include <filesystem>
+#include <map>
 
 void processInput(GLFWwindow *window);
 void framebufferSizeCallback(GLFWwindow* window, int width, int height);
@@ -77,6 +78,9 @@ int main() {
 	std::filesystem::path shaderVertPath = projectRoot/"res"/"shaders"/"shader.vert";
 	std::filesystem::path shaderFragPath = projectRoot/"res"/"shaders"/"shader.frag";
 	Shader shader(shaderVertPath.string().c_str(), shaderFragPath.string().c_str());
+	std::filesystem::path grassVertPath = projectRoot/"res"/"shaders"/"grass.vert";
+	std::filesystem::path grassFragPath = projectRoot/"res"/"shaders"/"grass.frag";
+	Shader grassShader(grassVertPath.string().c_str(), grassFragPath.string().c_str());
 
 	float cubeVertices[] = {
         // positions          // texture Coords
@@ -210,6 +214,14 @@ int main() {
         glm::vec3 (0.5f, 0.0f, -0.6f)
     };
 
+    vector<glm::vec3> windows
+    {
+        glm::vec3(-2.5f, 0.0f, -0.50f),
+        glm::vec3(-3.5f, 0.0f, -1.50f)
+    };
+
+    grassShader.use();
+    grassShader.setInt("texture1", 0);
     shader.use();
     shader.setInt("texture1", 0);
 
@@ -223,6 +235,14 @@ int main() {
 		// input
 		processInput(window);
 
+		// sort the transparent windows before rendering
+        std::map<float, glm::vec3> sorted;
+        for (unsigned int i = 0; i < windows.size(); i++)
+        {
+            float distance = glm::length(camera.Position - windows[i]);
+            sorted[distance] = windows[i];
+        }
+
 		// render
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -233,6 +253,10 @@ int main() {
 		glm::mat4 view = camera.GetViewMatrix();
 		shader.setMat4("projection", projection);
 		shader.setMat4("view", view);
+		grassShader.use();
+		grassShader.setMat4("projection", projection);
+		grassShader.setMat4("view", view);
+		shader.use();
 
         // plane
 		glBindVertexArray(planeVAO);
@@ -251,24 +275,29 @@ int main() {
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		model = glm::mat4(1.0f);
 		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-		shader. setMat4("model", model);
+		shader.setMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
 		// grass
+		grassShader.use();
 		glBindVertexArray(transparentVAO);
 		glBindTexture(GL_TEXTURE_2D, transparentTexture);
 		for(unsigned int i = 0; i < vegetation.size(); i++) {
 			model = glm::mat4(1.0f);
 			model = glm::translate(model, vegetation[i]);
-			shader.setMat4("model", model);
+			grassShader.setMat4("model", model);
 			glDrawArrays(GL_TRIANGLES, 0, 6);
 		}
-		// glass
-		glBindVertexArray(glassVAO);
-		glBindTexture(GL_TEXTURE_2D, glassTexture);
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(3.0f, 0.0f, 2.0f));
-		shader.setMat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 6);
+		shader.use();
+		// windows
+        glBindVertexArray(glassVAO);
+        glBindTexture(GL_TEXTURE_2D, glassTexture);
+        for (std::map<float, glm::vec3>::reverse_iterator it = sorted.rbegin(); it != sorted.rend(); ++it)
+        {
+            model = glm::mat4(1.0f);
+            model = glm::translate(model, it->second);
+            shader.setMat4("model", model);
+            glDrawArrays(GL_TRIANGLES, 0, 6);
+        }
 
 		glfwSwapBuffers(window);
 		glfwPollEvents();
