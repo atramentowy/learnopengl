@@ -84,6 +84,10 @@ int main() {
 	std::filesystem::path skyboxFragPath = projectRoot/"res"/"shaders"/"skybox.frag";
 	Shader skyboxShader(skyboxVertPath.string().c_str(), skyboxFragPath.string().c_str());
 
+	std::filesystem::path mirrorVertPath = projectRoot/"res"/"shaders"/"mirror.vert";
+	std::filesystem::path mirrorFragPath = projectRoot/"res"/"shaders"/"mirror.frag";
+	Shader mirrorShader(mirrorVertPath.string().c_str(), mirrorFragPath.string().c_str());
+
 	float cubeVertices[] = {
 		// positions          // texture Coords
 		-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
@@ -128,6 +132,50 @@ int main() {
 		-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
 		-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
+	float mirrorVertices[] = {
+        // positions          // normals
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,
+
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+         0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f,  0.0f, 1.0f,
+
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,
+
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,
+
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+         0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,
+        -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,
+
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+         0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,
+        -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f
+    };
 	float planeVertices[] = {
 		// positions          // texture Coords (note we set these higher than 1 (together with GL_REPEAT as texture wrapping mode). this will cause the floor texture to repeat)
 		 5.0f, -0.5f,  5.0f,  2.0f, 0.0f,
@@ -194,6 +242,17 @@ int main() {
 	glEnableVertexAttribArray(1);
 	glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glBindVertexArray(0);
+	// mirror cube vertices
+	unsigned int mirrorVAO, mirrorVBO;
+    glGenVertexArrays(1, &mirrorVAO);
+    glGenBuffers(1, &mirrorVBO);
+    glBindVertexArray(mirrorVAO);
+    glBindBuffer(GL_ARRAY_BUFFER, mirrorVBO);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(mirrorVertices), &mirrorVertices, GL_STATIC_DRAW);
+    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
+    glEnableVertexAttribArray(1);
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 	// plane vao
 	unsigned int planeVAO, planeVBO;
 	glGenVertexArrays(1, &planeVAO);
@@ -229,11 +288,14 @@ int main() {
 		projectRoot/"res"/"skybox"/"front.jpg",
 		projectRoot/"res"/"skybox"/"back.jpg"
 	};
+	stbi_set_flip_vertically_on_load(false);
 	unsigned int cubemapTexture = loadCubemap(faces);
 
 	shader.use();
 	shader.setInt("texture1", 0);
 
+	mirrorShader.use();
+	mirrorShader.setInt("skybox", 0);
 	skyboxShader.use();
 	skyboxShader.setInt("skybox", 0);
 
@@ -273,10 +335,21 @@ int main() {
 		model = glm::translate(model, glm::vec3(-1.0f, 0.0f, -1.0f));
 		shader.setMat4("model", model);
 		glDrawArrays(GL_TRIANGLES, 0, 36);
-		model = glm::mat4(1.0f);
-		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 0.0f));
-		shader.setMat4("model", model);
-		glDrawArrays(GL_TRIANGLES, 0, 36);
+		
+		// mirror cube
+		mirrorShader.use();
+		model = glm::translate(model, glm::vec3(2.0f, 0.0f, 2.0f));
+		mirrorShader.setMat4("model", model);
+        mirrorShader.setMat4("view", view);
+        mirrorShader.setMat4("projection", projection);
+        mirrorShader.setVec3("cameraPos", camera.Position);
+
+        glBindVertexArray(mirrorVAO);
+        glActiveTexture(GL_TEXTURE0);
+        glBindTexture(GL_TEXTURE_CUBE_MAP, cubemapTexture);
+        glDrawArrays(GL_TRIANGLES, 0, 36);
+        glBindVertexArray(0);
+
 
 		// skybox (draw as last)
 		glDepthFunc(GL_LEQUAL);
@@ -284,6 +357,7 @@ int main() {
 		view = glm::mat4(glm::mat3(camera.GetViewMatrix()));
 		skyboxShader.setMat4("view", view);
 		skyboxShader.setMat4("projection", projection);
+
 		// skybox cube
 		glBindVertexArray(skyboxVAO);
 		glActiveTexture(GL_TEXTURE0);
@@ -297,9 +371,11 @@ int main() {
 		glfwPollEvents();
 	}
 	glDeleteVertexArrays(1, &cubeVAO);
+	glDeleteVertexArrays(1, &mirrorVAO);
 	glDeleteVertexArrays(1, &planeVAO);
 	glDeleteVertexArrays(1, &skyboxVAO);
 	glDeleteBuffers(1, &cubeVBO);
+	glDeleteBuffers(1, &mirrorVBO);
 	glDeleteBuffers(1, &planeVBO);
 	glDeleteBuffers(1, &skyboxVBO);
 
