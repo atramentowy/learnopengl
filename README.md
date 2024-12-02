@@ -1,10 +1,10 @@
-# LearnOpenGl projects
+# Opengl projects
 
-Projects I created while learning OpenGL from https://learnopengl.com/
+A collection of opengl projects
 
-### Each project can be built with CMake
+https://learnopengl.com/
 
-You will have to add additional libraries such as GLFW and assimp if the project requires it
+### Compiling
 
 ```bash
   cd path/to/project
@@ -12,3 +12,17 @@ You will have to add additional libraries such as GLFW and assimp if the project
   cmake ..
   cmake --build .
 ```
+
+Additional libraries
+
+Glad: https://github.com/dav1dde/glad-web
+
+GLFW: https://www.glfw.org/ 
+
+GLM: https://glm.g-truc.net/0.9.9/index.html 
+
+Assimp: https://github.com/assimp/assimp
+
+Stb_image: https://github.com/nothings/stb/blob/master/stb_image.h
+
+imgui: https://github.com/ocornut/imgui
