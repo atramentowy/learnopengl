@@ -1,0 +1,6 @@
+git submodule add --depth 1 https://github.com/bulletphysics/bullet3.git
+
+# compile bullet without examples
+mkdir build && cd build
+cmake .. -DBUILD_EXTRAS=OFF -DBUILD_UNIT_TESTS=OFF -DBUILD_BULLET3=ON -DBUILD_BULLET2_DEMOS=OFF
+cmake --build . --config Release

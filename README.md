@@ -13,7 +13,7 @@ https://learnopengl.com/
   cmake --build .
 ```
 
-Additional libraries
+if you want to compile you will need to add some of these libraries
 
 Glad: https://github.com/dav1dde/glad-web
 
@@ -26,3 +26,7 @@ Assimp: https://github.com/assimp/assimp
 Stb_image: https://github.com/nothings/stb/blob/master/stb_image.h
 
 imgui: https://github.com/ocornut/imgui
+
+bulletphysics: https://github.com/bulletphysics/bullet3
+
+entt: https://github.com/skypjack/entt
